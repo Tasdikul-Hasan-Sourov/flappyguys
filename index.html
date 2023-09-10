@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 400px; /* Adjust the width as needed */
+            height: 600px; /* Adjust the height as needed */
+            margin: 0 auto;
+            border: 1px solid #000;
+            background-image: url('background.jpg'); /* Replace with your background image */
+            background-size: cover;
+        }
+        .bird {
+            position: absolute;
+            width: 80px; /* Adjust the width as needed */
+            height: 50px; /* Adjust the height as needed */
+            background-size: cover;
+            transform: rotate(0deg);
+            transition: transform 0.2s;
+        }
+        #bird-sakil {
+            background-image: url('bird-sakil.png'); /* Replace with your Sakil bird image */
+        }
+        #bird-shetu {
+            background-image: url('bird-shetu.png'); /* Replace with your Shetu bird image */
+        }
+        .pipe {
+            position: absolute;
+            width: 80px; /* Adjust the width as needed */
+            height: 30px; /* Adjust the height as needed */
+            background-image: url('obstacle.png'); /* Replace with your obstacle image */
+            background-size: cover;
+        }
+        .start-button {
+            width: 100px;
+            height: 40px;
+            background-color: #009933;
+            color: #fff;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .character-selection {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="bird" id="bird-sakil"></div>
+        <div class="bird" id="bird-shetu" style="display: none;"></div>
+        <div class="start-button" onclick="startGame()">Start</div>
+        <div id="score">0</div>
+        <div class="character-selection">
+            <label for="sakil">Sakil</label>
+            <input type="radio" id="sakil" name="character" checked>
+            <label for="shetu">Shetu</label>
+            <input type="radio" id="shetu" name="character">
+        </div>
+    </div>
+    <script>
+        const sakilBird = document.getElementById('bird-sakil');
+        const shetuBird = document.getElementById('bird-shetu');
+        const gameContainer = document.getElementById('game-container');
+        const startButton = document.querySelector('.start-button');
+        const scoreElement = document.getElementById('score');
+        const sakilRadio = document.getElementById('sakil');
+        const shetuRadio = document.getElementById('shetu');
+
+        let selectedBird = sakilBird; // Default selected bird
+
+        // Event listeners to switch between characters
+        sakilRadio.addEventListener('change', () => {
+            selectedBird = sakilBird;
+            sakilBird.style.display = 'block';
+            shetuBird.style.display = 'none';
+        });
+
+        shetuRadio.addEventListener('change', () => {
+            selectedBird = shetuBird;
+            sakilBird.style.display = 'none';
+            shetuBird.style.display = 'block';
+        });
+
+        let birdTop = 250;
+        let gravity = 1;
+        let isGameOver = false;
+        let isGameStarted = false;
+        let score = 0;
+        let pipes = [];
+
+        function jump() {
+            if (!isGameStarted) {
+                startGame();
+            }
+            if (!isGameOver) {
+                gravity = -12;
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === ' ' || event.key === 'Spacebar') {
+                jump();
+            }
+        });
+
+        function startGame() {
+            isGameStarted = true;
+            startButton.style.display = 'none';
+            selectedBird.style.top = birdTop + 'px';
+            document.removeEventListener('keydown', jump);
+            createObstacle();
+            gameLoop();
+        }
+
+        function createObstacle() {
+            if (!isGameOver) {
+                const pipeGap = 200;
+                const minHeight = 50;
+                const maxHeight = 350;
+                const pipeHeight = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight);
+                const topPipe = document.createElement('div');
+                topPipe.classList.add('pipe');
+                topPipe.style.left = '400px';
+                topPipe.style.height = pipeHeight + 'px';
+                topPipe.style.top = '0';
+                gameContainer.appendChild(topPipe);
+
+                const bottomPipe = document.createElement('div');
+                bottomPipe.classList.add('pipe');
+                bottomPipe.style.left = '400px';
+                bottomPipe.style.height = 600 - pipeHeight - pipeGap + 'px'; /* Adjusted height to match the game container */
+                bottomPipe.style.bottom = '0';
+                gameContainer.appendChild(bottomPipe);
+
+                pipes.push({ top: topPipe, bottom: bottomPipe });
+            }
+        }
+
+        function moveObstacles() {
+            pipes.forEach((pipe) => {
+                const speed = 3;
+                pipe.top.style.left = parseInt(pipe.top.style.left) - speed + 'px';
+                pipe.bottom.style.left = parseInt(pipe.bottom.style.left) - speed + 'px';
+
+                if (checkCollision(pipe.top) || checkCollision(pipe.bottom)) {
+                    gameOver();
+                }
+
+                if (parseInt(pipe.top.style.left) + 60 < 40 && !pipe.top.hasAttribute('scored')) {
+                    score++;
+                    scoreElement.innerText = score;
+                    pipe.top.setAttribute('scored', 'true');
+                }
+
+                if (parseInt(pipe.top.style.left) + 60 < 0) {
+                    pipe.top.remove();
+                    pipe.bottom.remove();
+                    pipes.shift();
+                    createObstacle();
+                }
+            });
+        }
+
+        function checkCollision(pipe) {
+            const birdRect = selectedBird.getBoundingClientRect();
+            const pipeRect = pipe.getBoundingClientRect();
+
+            // Add a buffer zone (20 pixels) around the bird and obstacles
+            const birdX = birdRect.right - 20;
+            const birdY = birdRect.bottom - 20;
+            const pipeLeft = pipeRect.left + 20;
+            const pipeRight = pipeRect.right - 20;
+            const pipeTop = pipeRect.top + 20;
+            const pipeBottom = pipeRect.bottom - 20;
+
+            return (
+                birdX > pipeLeft &&
+                birdX < pipeRight &&
+                birdY > pipeTop &&
+                birdY < pipeBottom
+            );
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            alert('Game Over!\nYour score: ' + score);
+            location.reload();
+        }
+
+        function gameLoop() {
+            if (!isGameOver) {
+                gravity += 1;
+                birdTop += gravity;
+                selectedBird.style.top = birdTop + 'px';
+
+                if (birdTop <= 0) {
+                    birdTop = 0;
+                }
+
+                if (birdTop >= 560) {
+                    birdTop = 560;
+                    gameOver();
+                }
+
+                moveObstacles();
+
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', () => {
+            selectedBird.style.display = 'block'; // Show the selected bird
+            selectedBird.style.top = birdTop + 'px';
+            createObstacle();
+        });
+    </script>
+</body>
+</html>
