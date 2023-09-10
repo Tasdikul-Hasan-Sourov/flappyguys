@@ -75,12 +75,12 @@
     <div id="game-container">
         <div class="bird" id="bird-sakil"></div>
         <div class="bird" id="bird-shetu" style="display: none;"></div>
-        <div class="start-button" onclick="startGame()">Start</div>
+        <div class="start-button" onclick="startGame()">আহো যাই কক্সবাজার</div>
         <div id="score">0</div>
         <div class="character-selection">
-            <label for="sakil">Sakil</label>
+            <label for="sakil">শাকিল</label>
             <input type="radio" id="sakil" name="character" checked>
-            <label for="shetu">Shetu</label>
+            <label for="shetu">সেতু</label>
             <input type="radio" id="shetu" name="character">
         </div>
     </div>
@@ -192,13 +192,13 @@
             const birdRect = selectedBird.getBoundingClientRect();
             const pipeRect = pipe.getBoundingClientRect();
 
-            // Add a buffer zone (20 pixels) around the bird and obstacles
-            const birdX = birdRect.right - 20;
-            const birdY = birdRect.bottom - 20;
-            const pipeLeft = pipeRect.left + 20;
-            const pipeRight = pipeRect.right - 20;
-            const pipeTop = pipeRect.top + 20;
-            const pipeBottom = pipeRect.bottom - 20;
+            // Add a buffer zone (30 pixels) around the bird and obstacles
+            const birdX = birdRect.right - 30;
+            const birdY = birdRect.bottom - 30;
+            const pipeLeft = pipeRect.left + 30;
+            const pipeRight = pipeRect.right - 30;
+            const pipeTop = pipeRect.top + 30;
+            const pipeBottom = pipeRect.bottom - 30;
 
             return (
                 birdX > pipeLeft &&
