@@ -131,14 +131,31 @@
         });
 
         // Add touch event handlers for jumping on touch devices
-        document.addEventListener('touchstart', jump);
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            if (event.targetTouches.length === 1) {
+                touchStartY = event.targetTouches[0].pageY;
+            }
+        });
+
+        document.addEventListener('touchend', function(event) {
+            if (event.changedTouches.length === 1) {
+                touchEndY = event.changedTouches[0].pageY;
+                if (touchEndY < touchStartY) {
+                    jump();
+                }
+            }
+        });
 
         function startGame() {
             isGameStarted = true;
             startButton.style.display = 'none';
             selectedBird.style.top = birdTop + 'px';
             document.removeEventListener('keydown', jump);
-            document.removeEventListener('touchstart', jump); // Remove the touchstart listener
+            document.removeEventListener('touchstart', jump);
+            document.removeEventListener('touchend', jump);
             createObstacle();
             gameLoop();
         }
