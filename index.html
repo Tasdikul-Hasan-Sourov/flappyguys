@@ -69,6 +69,19 @@
             font-weight: bold;
             color: #fff;
         }
+        .jump-button {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 40px;
+            background-color: #009933;
+            color: #fff;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +97,7 @@
             <input type="radio" id="shetu" name="character">
         </div>
     </div>
+    <div class="jump-button" onclick="jump()">Jump</div> <!-- Add a jump button -->
     <script>
         const sakilBird = document.getElementById('bird-sakil');
         const shetuBird = document.getElementById('bird-shetu');
@@ -92,6 +106,7 @@
         const scoreElement = document.getElementById('score');
         const sakilRadio = document.getElementById('sakil');
         const shetuRadio = document.getElementById('shetu');
+        const jumpButton = document.querySelector('.jump-button'); // Get the jump button element
 
         let selectedBird = sakilBird; // Default selected bird
 
@@ -131,14 +146,13 @@
         });
 
         // Add touch event handlers for jumping on touch devices
-        document.addEventListener('touchstart', jump);
+        jumpButton.addEventListener('touchstart', jump); // Use the jump button for mobile control
 
         function startGame() {
             isGameStarted = true;
             startButton.style.display = 'none';
             selectedBird.style.top = birdTop + 'px';
             document.removeEventListener('keydown', jump);
-            document.removeEventListener('touchstart', jump); // Remove the touchstart listener
             createObstacle();
             gameLoop();
         }
