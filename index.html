@@ -109,7 +109,7 @@
         });
 
         let birdTop = 250;
-        let gravity = 1;
+        let gravity = 0.5; // Reduced gravity
         let isGameOver = false;
         let isGameStarted = false;
         let score = 0;
@@ -120,7 +120,7 @@
                 startGame();
             }
             if (!isGameOver) {
-                gravity = -12;
+                gravity = -10; // Reduced jump strength
             }
         }
 
@@ -130,11 +130,15 @@
             }
         });
 
+        // Add touch event handlers for jumping on touch devices
+        document.addEventListener('touchstart', jump);
+
         function startGame() {
             isGameStarted = true;
             startButton.style.display = 'none';
             selectedBird.style.top = birdTop + 'px';
             document.removeEventListener('keydown', jump);
+            document.removeEventListener('touchstart', jump); // Remove the touchstart listener
             createObstacle();
             gameLoop();
         }
@@ -165,7 +169,7 @@
 
         function moveObstacles() {
             pipes.forEach((pipe) => {
-                const speed = 3;
+                const speed = 1.5; // Reduced speed
                 pipe.top.style.left = parseInt(pipe.top.style.left) - speed + 'px';
                 pipe.bottom.style.left = parseInt(pipe.bottom.style.left) - speed + 'px';
 
@@ -216,7 +220,7 @@
 
         function gameLoop() {
             if (!isGameOver) {
-                gravity += 1;
+                gravity += 0.5; // Reduced gravity increase
                 birdTop += gravity;
                 selectedBird.style.top = birdTop + 'px';
 
